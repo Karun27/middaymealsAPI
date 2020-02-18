@@ -7,14 +7,16 @@ This is a temporary script file.
 import pymongo
 from flask import Flask, request,url_for,render_template
 app = Flask(__name__)
+CORS(app)
 import pymongo
-
+from flask_cors import CORS, cross_origin
 import urllib 
 class aipassflask :
         def __init__(self):
             
             pass
         @app.route('/user/login',methods = ['POST','GET'])
+        @cross_origin() 
         def login():
             client = pymongo.MongoClient("mongodb+srv://"+urllib.parse.quote("aditya")+':'+urllib.parse.quote("lokam001")+"@cluster0-dikue.mongodb.net/test?retryWrites=true&w=majority")
             db = client['test']
@@ -27,6 +29,7 @@ class aipassflask :
             collect.insert_one(doc)
             return('success')
         @app.route('/user/register',methods = ['POST','GET'])
+        @cross_origin() 
         def register():
             client = pymongo.MongoClient("mongodb+srv://"+urllib.parse.quote("aditya")+':'+urllib.parse.quote("lokam001")+"@cluster0-dikue.mongodb.net/test?retryWrites=true&w=majority")
             db = client['test']
@@ -46,6 +49,7 @@ class aipassflask :
             collect.insert_one(doc)
             return('success')
         @app.route('/homepage/home',methods = ['POST','GET'])
+        @cross_origin() 
         def project():
             client = pymongo.MongoClient("mongodb+srv://"+urllib.parse.quote("aditya")+':'+urllib.parse.quote("lokam001")+"@cluster0-dikue.mongodb.net/test?retryWrites=true&w=majority")
             db = client['test']
@@ -59,6 +63,7 @@ class aipassflask :
                 }
             collect.insert_one(doc)
             return('success')
+
 if __name__ == '__main__':
     app.run()
     
