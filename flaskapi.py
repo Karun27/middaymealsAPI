@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """
 Spyder Editor
-
 This is a temporary script file.
 """
 import pymongo
@@ -44,6 +43,26 @@ class aipassflask :
                 db = client['test']
                 collect=db['homepagecollection']
                 val = request.get_json('project')
+                collect.insert_one(val)
+                page_sanitized = json.loads(json_util.dumps(val))
+                return(page_sanitized)
+        @app.route('/connectionsnew',methods = ['POST','GET'])
+        @cross_origin()
+        def project():
+                client = pymongo.MongoClient("mongodb+srv://aditya:lokam001@cluster0-dikue.mongodb.net/test?retryWrites=true&w=majority")
+                db = client['test']
+                collect=db['connectionscollection']
+                val = request.get_json('host')
+                collect.insert_one(val)
+                page_sanitized = json.loads(json_util.dumps(val))
+                return(page_sanitized)
+        @app.route('/datasourcenew',methods = ['POST','GET'])
+        @cross_origin()
+        def project():
+                client = pymongo.MongoClient("mongodb+srv://aditya:lokam001@cluster0-dikue.mongodb.net/test?retryWrites=true&w=majority")
+                db = client['test']
+                collect=db['datasourceconnection']
+                val = request.get_json('selectDataType')
                 collect.insert_one(val)
                 page_sanitized = json.loads(json_util.dumps(val))
                 return(page_sanitized)
