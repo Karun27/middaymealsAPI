@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-Spyder Editor
+Created on Thu Feb 20 15:21:55 2020
 
-This is a temporary script file.
+@author: adityaroyal
 """
+
 import pymongo
 from flask import Flask, request,url_for,render_template
 app = Flask(__name__)
@@ -13,6 +14,7 @@ CORS(app)
 from bson import json_util, ObjectId
 import json
 import urllib
+import hdfs_connection
 class aipassflask :
         def __init__(self):
 
@@ -26,6 +28,7 @@ class aipassflask :
             val = request.get_json('email')
             collect.insert_one(val)
             page_sanitized = json.loads(json_util.dumps(val))
+            
             return(page_sanitized)
         @app.route('/user/register',methods = ['POST','GET'])
         @cross_origin()
@@ -55,8 +58,11 @@ class aipassflask :
             collect=db['connectionscollection']
             val = request.get_json('host')
             collect.insert_one(val)
-            page_sanitized = json.loads(json_util.dumps(val))
-            return(page_sanitized)
+            #input_json=json.loads(json_util.dumps(val))
+            sc=hdfs_connection.someclass(val)
+            a= sc.HDFSConnection()
+            b=sc.KafkaConnection()
+            return({'HDFS':a,'Kafka':b,'Ubuntu':c})
         @app.route('/datasource/new',methods = ['POST','GET'])
         @cross_origin()
         def datasource():
@@ -67,7 +73,8 @@ class aipassflask :
                         collect.insert_one(val)
                         page_sanitized = json.loads(json_util.dumps(val))
                         return(page_sanitized)
-
+        
+            
 if __name__ == '__main__':
     app.run()
 
