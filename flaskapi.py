@@ -28,7 +28,7 @@ class aipassflask :
             val = request.get_json('email')
             collect.insert_one(val)
             page_sanitized = json.loads(json_util.dumps(val))
-            return(val)
+            return(page_sanitized)
         @app.route('/user/register',methods = ['POST','GET'])
         @cross_origin()
         def register():
@@ -38,7 +38,7 @@ class aipassflask :
             val=request.get_json('First_Name')
             collect.insert_one(val)
             page_sanitized = json.loads(json_util.dumps(val))
-            return(val)
+            return(sanitized)
         @app.route('/homepage/home',methods = ['POST','GET'])
         @cross_origin()
         def project():
