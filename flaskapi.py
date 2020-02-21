@@ -49,7 +49,7 @@ class aipassflask :
             collect.insert_one(val)
             page_sanitized = json.loads(json_util.dumps(val))
             return(page_sanitized)
-        @app.route('/connectionsnew',methods = ['POST','GET'])
+        @app.route('/connectionnew',methods = ['POST','GET'])
         @cross_origin()
         def connections():
             client = pymongo.MongoClient("mongodb+srv://aditya:lokam001@cluster0-dikue.mongodb.net/test?retryWrites=true&w=majority")
