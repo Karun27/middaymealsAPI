@@ -49,7 +49,7 @@ class aipassflask :
             collect.insert_one(val)
             page_sanitized = json.loads(json_util.dumps(val))
             return(page_sanitized)
-        @app.route('/connectionnew',methods = ['POST','GET'])
+        @app.route('/connections/new',methods = ['POST','GET'])
         @cross_origin()
         def connections():
             client = pymongo.MongoClient("mongodb+srv://aditya:lokam001@cluster0-dikue.mongodb.net/test?retryWrites=true&w=majority")
@@ -62,7 +62,7 @@ class aipassflask :
             a= sc.HDFSConnection()
             b=sc.KafkaConnection()
             return({'HDFS':a,'Kafka':b,'Ubuntu':c})
-        @app.route('/datasourcenew',methods = ['POST','GET'])
+        @app.route('/datasource/new',methods = ['POST','GET'])
         @cross_origin()
         def datasource():
                         client = pymongo.MongoClient("mongodb+srv://aditya:lokam001@cluster0-dikue.mongodb.net/test?retryWrites=true&w=majority")
@@ -73,20 +73,17 @@ class aipassflask :
                         page_sanitized = json.loads(json_util.dumps(val))
                         return(page_sanitized)
         
-        @app.route('/new',methods = ['POST','GET'])
+        @app.route('/fengg/new',methods = ['POST','GET'])
         @cross_origin()
         def featureeng():
                         client = pymongo.MongoClient("mongodb+srv://aditya:lokam001@cluster0-dikue.mongodb.net/test?retryWrites=true&w=majority")
                         db = client['test']
-                        collect=db['fedacollection']
+                        collect=db['fenggcollection']
                         val = request.get_json('options1.name')
                         collect.insert_one(val)
                         page_sanitized = json.loads(json_util.dumps(val))
                         return(page_sanitized)
+                      
                         
 if __name__ == '__main__':
     app.run()
-
-
-
-
