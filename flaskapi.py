@@ -28,7 +28,7 @@ class aipassflask :
             val = request.get_json('email')
             collect.insert_one(val)
             page_sanitized = json.loads(json_util.dumps(val))
-            return(page_sanitized)
+            return(val)
         @app.route('/user/register',methods = ['POST','GET'])
         @cross_origin()
         def register():
@@ -38,7 +38,7 @@ class aipassflask :
             val=request.get_json('First_Name')
             collect.insert_one(val)
             page_sanitized = json.loads(json_util.dumps(val))
-            return(page_sanitized)
+            return(val)
         @app.route('/homepage/home',methods = ['POST','GET'])
         @cross_origin()
         def project():
@@ -61,7 +61,7 @@ class aipassflask :
             sc=hdfs_connection.someclass(val)
             a= sc.HDFSConnection()
             b=sc.KafkaConnection()
-            return({'HDFS':a,'Kafka':b,'Ubuntu':c})
+            return({'HDFS':a,'Kafka':b})
         @app.route('/datasource/new',methods = ['POST','GET'])
         @cross_origin()
         def datasource():
@@ -86,4 +86,8 @@ class aipassflask :
                       
                         
 if __name__ == '__main__':
-    app.run()
+        app.run()
+
+
+
+
