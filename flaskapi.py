@@ -17,7 +17,7 @@ import json
 import urllib
 import KafkaTopic
 import hdfs_connection
-import featurenames
+import fedanew
 class aipassflask :
         def __init__(self):
 
@@ -77,8 +77,7 @@ class aipassflask :
         def datasource():
                         #connections()
                         client = pymongo.MongoClient("mongodb+srv://aditya:lokam001@cluster0-dikue.mongodb.net/test?retryWrites=true&w=majority")
-                        db = client['test']
-                        collect=db['datasourcecollection']
+
                         db = client['test']
                         a=[]
                         cursor = db.connectionscollection.find({})
@@ -99,14 +98,16 @@ class aipassflask :
                         port=val.get('port')
                         path=page_sanitized.get('path')
                         file=page_sanitized.get('file')
-                        cols=featurenames.featurenames(host,user,port,path,file)
+                        cols=fedanew.dataconn(host,user,port,path,file)
                         val_port['cols']=cols
+                        db = client['test']
+                        collect=db['datasourcecollection']
                         collect.insert_one(val_port)
                         
                         return(cols)
-        @app.route('/columns/new',methods = ['POST','GET'])
+        @app.route('/features',methods = ['POST','GET'])
         @cross_origin()
-        def columns():
+        def features():
             client = pymongo.MongoClient("mongodb+srv://aditya:lokam001@cluster0-dikue.mongodb.net/test?retryWrites=true&w=majority")
             db = client['test']
             cursor = db.datasourcecollection.find({})
@@ -117,6 +118,14 @@ class aipassflask :
                 val=sorted(a,key= lambda x:x['_id'])[-1]
             cols=val['cols']
             return(cols)
+        @app.route('/feda',methods = ['POST','GET'])
+        @cross_origin()
+        def feda():
+            val=request.get_json('fengg')
+            page_sanitized= json.loads(json_util.dumps(val))
+            fedanew.main(val)
+            return page_sanitized
+            
             
                         
 if __name__ == '__main__':
