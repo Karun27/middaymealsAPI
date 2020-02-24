@@ -6,15 +6,18 @@ Created on Thu Feb 20 15:21:55 2020
 """
 
 import pymongo
-from flask import Flask, request,url_for,render_template
+from flask import Flask, request,url_for,render_template,session,redirect
 app = Flask(__name__)
+app.secret_key = "super secret key"
 import pymongo
 from flask_cors import CORS, cross_origin
 CORS(app)
 from bson import json_util, ObjectId
 import json
 import urllib
+import KafkaTopic
 import hdfs_connection
+import featurenames
 class aipassflask :
         def __init__(self):
 
@@ -38,7 +41,7 @@ class aipassflask :
             val=request.get_json('First_Name')
             collect.insert_one(val)
             page_sanitized = json.loads(json_util.dumps(val))
-            return(sanitized)
+            return(page_sanitized)
         @app.route('/homepage/home',methods = ['POST','GET'])
         @cross_origin()
         def project():
@@ -57,33 +60,65 @@ class aipassflask :
             collect=db['connectionscollection']
             val = request.get_json('host')
             collect.insert_one(val)
-            #input_json=json.loads(json_util.dumps(val))
-            sc=hdfs_connection.someclass(val)
-            a= sc.HDFSConnection()
-            b=sc.KafkaConnection()
-            return({'HDFS':a,'Kafka':b})
+            page_sanitized=json.loads(json_util.dumps(val))
+            sc=hdfs_connection.Connection(val)
+            a= 'True'
+            b='False'
+            session['my_var']=page_sanitized
+
+            
+
+            return(page_sanitized)
+  
+
+            
         @app.route('/datasource/new',methods = ['POST','GET'])
         @cross_origin()
         def datasource():
+                        #connections()
                         client = pymongo.MongoClient("mongodb+srv://aditya:lokam001@cluster0-dikue.mongodb.net/test?retryWrites=true&w=majority")
                         db = client['test']
                         collect=db['datasourcecollection']
-                        val = request.get_json('selectDataType')
-                        collect.insert_one(val)
-                        page_sanitized = json.loads(json_util.dumps(val))
-                        return(page_sanitized)
-        
-        @app.route('/fengg/new',methods = ['POST','GET'])
-        @cross_origin()
-        def featureeng():
-                        client = pymongo.MongoClient("mongodb+srv://aditya:lokam001@cluster0-dikue.mongodb.net/test?retryWrites=true&w=majority")
                         db = client['test']
-                        collect=db['fenggcollection']
-                        val = request.get_json('options1.name')
-                        collect.insert_one(val)
-                        page_sanitized = json.loads(json_util.dumps(val))
-                        return(page_sanitized)
-                      
+                        a=[]
+                        cursor = db.connectionscollection.find({})
+                        for document in cursor:
+                            a.append(document)
+                        #val=session['myvar']
+                        val=sorted(a,key= lambda x:x['_id'])[-1]
+                        val_port = request.get_json('topic_Name')
+                        #session['my_var2'] = val_port
+                        
+                        page_sanitized= json.loads(json_util.dumps(val_port))
+                        sc=KafkaTopic.KafkaTopic(val,page_sanitized)
+                        sc.topic()
+                        sc.producer()
+                        sc.consumer()  
+                        host=val.get('host')
+                        user=val.get('user')
+                        port=val.get('port')
+                        path=page_sanitized.get('path')
+                        file=page_sanitized.get('file')
+                        cols=featurenames.featurenames(host,user,port,path,file)
+                        val_port['cols']=cols
+                        collect.insert_one(val_port)
+                        
+                        return(cols)
+        @app.route('/columns/new',methods = ['POST','GET'])
+        @cross_origin()
+        def columns():
+            client = pymongo.MongoClient("mongodb+srv://aditya:lokam001@cluster0-dikue.mongodb.net/test?retryWrites=true&w=majority")
+            db = client['test']
+            collect=db['datasourcecollection']
+            db = client['test']
+            cursor = db.connectionscollection.find({})
+            for document in cursor:
+                a.append(document)
+                #val=session['myvar']
+                val=sorted(a,key= lambda x:x['_id'])[-1]
+            cols=val['cols']
+            return(cols)
+            
                         
 if __name__ == '__main__':
         app.run()
