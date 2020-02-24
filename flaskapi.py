@@ -98,7 +98,7 @@ class aipassflask :
                         port=val.get('port')
                         path=page_sanitized.get('path')
                         file=page_sanitized.get('file')
-                        cols=fedanew.dataconn(host,user,port,path,file)
+                        cols=fedanew.dataconn(host,user,port,path,file)[1]
                         val_port['cols']=cols
                         db = client['test']
                         collect=db['datasourcecollection']
@@ -115,15 +115,15 @@ class aipassflask :
             for document in cursor:
                 a.append(document)
                 #val=session['myvar']
-                val=sorted(a,key= lambda x:x['_id'])[-1]
+            val=sorted(a,key= lambda x:x['_id'])[-1]
             cols=val['cols']
-            return(cols)
+            return({'cols':cols})
         @app.route('/feda',methods = ['POST','GET'])
         @cross_origin()
         def feda():
             val=request.get_json('fengg')
             page_sanitized= json.loads(json_util.dumps(val))
-            fedanew.main(val)
+            fedanew.fedaclass.main(val)
             return page_sanitized
             
             
