@@ -109,9 +109,8 @@ class aipassflask :
         def columns():
             client = pymongo.MongoClient("mongodb+srv://aditya:lokam001@cluster0-dikue.mongodb.net/test?retryWrites=true&w=majority")
             db = client['test']
-            collect=db['datasourcecollection']
-            db = client['test']
-            cursor = db.connectionscollection.find({})
+            cursor = db.datasourcecollection.find({})
+            a=[]
             for document in cursor:
                 a.append(document)
                 #val=session['myvar']
