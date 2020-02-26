@@ -15,8 +15,9 @@ CORS(app)
 from bson import json_util, ObjectId
 import json
 import urllib
-#import KafkaTopic
-#import hdfs_connection
+import feda_auto
+import KafkaTopic
+import hdfs_connection
 import featurenames
 class aipassflask :
         def __init__(self):
@@ -62,12 +63,6 @@ class aipassflask :
             collect.insert_one(val)
             page_sanitized=json.loads(json_util.dumps(val))
             sc=hdfs_connection.Connection(val)
-            a= 'True'
-            b='False'
-            session['my_var']=page_sanitized
-
-            
-
             return(page_sanitized)
   
 
@@ -179,7 +174,7 @@ class aipassflask :
                 a.append(document)
                 #val=session['myvar']
             vald=sorted(a,key= lambda x:x['_id'])[-1]
-            featurenames.final(page_sanitized,val.get('host'),val.get('user'),val.get('port'),vald.get('data_Path'),vald.get('data_File'),vald.get('data_Folder'),vald.get('feature_Path'),vald.get('feature_Name'),vald.get('feature_Folder'))
+            feda_auto.final(val.get('host'),val.get('user'),val.get('port'),vald.get('data_Path'),vald.get('data_File'),vald.get('data_Folder'),vald.get('feature_Path'),vald.get('feature_Name'),vald.get('feature_Folder'))
             return page_sanitized
             
 #[{"Feature_Engeneering_option":"Bucketing","Features":[{"name":"acds"},{"name":"asd"}]},{"Feature_Engeneering_option":"Handle missing data","Features":[{"name":"dsfsc"},{"name":"asd"}]},{"Feature_Engeneering_option":"Drop duplicate data","Features":[{"name":"asd"}]}]           
