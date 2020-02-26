@@ -16,6 +16,7 @@ from bson import json_util, ObjectId
 import json
 import urllib
 import feda_auto
+import featurenames
 import KafkaTopic
 import hdfs_connection
 import featurenames
@@ -91,15 +92,15 @@ class aipassflask :
             host=val.get('host')
             user=val.get('user')
             port=val.get('port')
-            path=page_sanitized.get('path')
-            file=page_sanitized.get('file')
-            cols=fedanew.dataconn(host,user,port,path,file)[1]
+            path=page_sanitized.get('source_Path')
+            file=page_sanitized.get('source_File')
+            cols=featurenames.dataconn(host,user,port,path,file)[1]
             val_port['cols']=cols
             db = client['test']
             collect=db['datasourcecollection']
             collect.insert_one(val_port)
             
-            return(cols)
+            return(page_sanitized)
         @app.route('/features',methods = ['POST','GET'])
         @cross_origin()
         def features():
@@ -116,15 +117,8 @@ class aipassflask :
         @app.route('/feda',methods = ['POST','GET'])
         @cross_origin()
         def feda():
-            client = pymongo.MongoClient("mongodb+srv://aditya:lokam001@cluster0-dikue.mongodb.net/test?retryWrites=true&w=majority")
-
-            db = client['test']
-            a=[]
-            cursor = db.connectionscollection.find({})
-            for document in cursor:
-                a.append(document)
-                #val=session['myvar']
-            a=sorted(a,key= lambda x:x['_id'])[-1]
+        
+            a=request.json
             key=[]
             key_value=[]
             for i in range(len(a['val'])):
@@ -137,9 +131,23 @@ class aipassflask :
             val={}
             for i,j in zip(key,key_value):
                 val[i]=j
-            valnew=request.json
-            page_sanitized= json.loads(json_util.dumps(valnew))
-            featurenames.final(page_sanitized,val.get('host'),val.get('user'),val.get('port'),val.get('path'),val.get('file'),val.get('folder'),val.get('featurepath'),val.get('featurefile'),val.get('featurefolder'))
+            client = pymongo.MongoClient("mongodb+srv://aditya:lokam001@cluster0-dikue.mongodb.net/test?retryWrites=true&w=majority")
+
+            db = client['test']
+            a=[]
+            cursor = db.connectionscollection.find({})
+            for document in cursor:
+                a.append(document)
+            #val=session['myvar']
+            valc=sorted(a,key= lambda x:x['_id'])[-1]
+            a=[]
+            cursor = db.datasourcecollection.find({})
+            for document in cursor:
+                a.append(document)
+            #val=session['myvar']
+            vald=sorted(a,key= lambda x:x['_id'])[-1]
+           
+            featurenames.final(val,valc.get('host'),valc.get('user'),valc.get('port'),vald.get('path'),vald.get('file'),vald.get('folder'),vald.get('featurepath'),vald.get('featurefile'),vald.get('featurefolder'))
             return page_sanitized
         @app.route('/recommend',methods = ['POST','GET'])
         @cross_origin()
@@ -151,30 +159,16 @@ class aipassflask :
             cursor = db.connectionscollection.find({})
             for document in cursor:
                 a.append(document)
-                #val=session['myvar']
-            a=sorted(a,key= lambda x:x['_id'])[-1]
-            key=[]
-            key_value=[]
-            for i in range(len(a['val'])):
-                print(a['val'])
-                key.append(a['val'][i]['Feature_Engeneering_option'])
-                value=[]
-                for j in range(len(a['val'][i]['Features'])):
-                    value.append(a['val'][i]['Features'][j]['name'])
-                key_value.append(value)
-            val={}
-            for i,j in zip(key,key_value):
-                val[i]=j
-            valnew=request.json
-            valnew=valnew['cols']
-            page_sanitized= json.loads(json_util.dumps(valnew))
-            cursor = db.datasourcecollection.find({})
+            #val=session['myvar']
+            valc=sorted(a,key= lambda x:x['_id'])[-1]
             a=[]
+            cursor = db.datasourcecollection.find({})
             for document in cursor:
                 a.append(document)
-                #val=session['myvar']
+            #val=session['myvar']
             vald=sorted(a,key= lambda x:x['_id'])[-1]
-            feda_auto.final(val.get('host'),val.get('user'),val.get('port'),vald.get('data_Path'),vald.get('data_File'),vald.get('data_Folder'),vald.get('feature_Path'),vald.get('feature_Name'),vald.get('feature_Folder'))
+           
+            featurenames.final(vald.get('cols'),valc.get('host'),valc.get('user'),valc.get('port'),vald.get('path'),vald.get('file'),vald.get('folder'),vald.get('featurepath'),vald.get('featurefile'),vald.get('featurefolder'))    
             return page_sanitized
             
 #[{"Feature_Engeneering_option":"Bucketing","Features":[{"name":"acds"},{"name":"asd"}]},{"Feature_Engeneering_option":"Handle missing data","Features":[{"name":"dsfsc"},{"name":"asd"}]},{"Feature_Engeneering_option":"Drop duplicate data","Features":[{"name":"asd"}]}]           
