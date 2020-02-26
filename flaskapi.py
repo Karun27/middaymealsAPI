@@ -144,7 +144,7 @@ class aipassflask :
                 val[i]=j
             valnew=request.json
             page_sanitized= json.loads(json_util.dumps(valnew))
-            featurenames.final(page_sanitized,val.get('host'),val.get('user'),val.get('port'),val.get('path'),val.get('file'))
+            featurenames.final(page_sanitized,val.get('host'),val.get('user'),val.get('port'),val.get('path'),val.get('file'),val.get('folder'),val.get('featurepath'),val.get('featurefile'),val.get('featurefolder'))
             return page_sanitized
         @app.route('/recommend',methods = ['POST','GET'])
         @cross_origin()
@@ -173,10 +173,20 @@ class aipassflask :
             valnew=request.json
             valnew=valnew['cols']
             page_sanitized= json.loads(json_util.dumps(valnew))
-            featurenames.final(page_sanitized,val.get('host'),val.get('user'),val.get('port'),val.get('path'),val.get('file'))
+            cursor = db.datasourcecollection.find({})
+            a=[]
+            for document in cursor:
+                a.append(document)
+                #val=session['myvar']
+            vald=sorted(a,key= lambda x:x['_id'])[-1]
+            featurenames.final(page_sanitized,val.get('host'),val.get('user'),val.get('port'),vald.get('data_Path'),vald.get('data_File'),vald.get('data_Folder'),vald.get('feature_Path'),vald.get('feature_Name'),vald.get('feature_Folder'))
             return page_sanitized
             
 #[{"Feature_Engeneering_option":"Bucketing","Features":[{"name":"acds"},{"name":"asd"}]},{"Feature_Engeneering_option":"Handle missing data","Features":[{"name":"dsfsc"},{"name":"asd"}]},{"Feature_Engeneering_option":"Drop duplicate data","Features":[{"name":"asd"}]}]           
                         
 if __name__ == '__main__':
         app.run()
+
+
+
+
