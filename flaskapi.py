@@ -13,6 +13,8 @@ import featurenames
 import KafkaTopic
 import hdfs_connection
 import featurenames
+import dmp1
+import glob
 class aipassflask :
         def __init__(self):
 
@@ -121,46 +123,7 @@ class aipassflask :
            di['newcols']=value
            collect.insert_one(di)
            return ({'cols':value})
-        @app.route('/feda',methods = ['POST','GET'])
-        @cross_origin()
-        def feda():
-        
-            a=request.json
-            key=[]
-            key_value=[]
-            for i in range(len(a['val'])):
-                print(a['val'])
-                key.append(a['val'][i]['Feature_Engeneering_option'])
-                value=[]
-                for j in range(len(a['val'][i]['Features'])):
-                    value.append(a['val'][i]['Features'][j]['name'])
-                key_value.append(value)
-            val={}
-            for i,j in zip(key,key_value):
-                val[i]=j
-            client = pymongo.MongoClient("mongodb+srv://aditya:lokam001@cluster0-dikue.mongodb.net/test?retryWrites=true&w=majority")
 
-            db = client['test']
-            a=[]
-            cursor = db.connectionscollection.find({})
-            for document in cursor:
-                a.append(document)
-            #val=session['myvar']
-            valc=sorted(a,key= lambda x:x['_id'])[-1]
-            a=[]
-            cursor = db.datasourcecollection.find({})
-            for document in cursor:
-                a.append(document)
-            #val=session['myvar']
-            vald=sorted(a,key= lambda x:x['_id'])[-1]
-            a=[]
-            featurepath=vald.get('featurepath')
-            collect=db['dmpfolderscollection']
-            di={}
-            di['featurepath']=featurepath
-            collect.insert_one(di)
-            featurenames.final(val,valc.get('host'),valc.get('user'),valc.get('port'),vald.get('path'),vald.get('file'),vald.get('folder'),vald.get('featurepath'),vald.get('featurefile'),vald.get('featurefolder'))
-            return page_sanitized
         @app.route('/recommend',methods = ['POST','GET'])
         @cross_origin()
         def recommend():
@@ -202,7 +165,7 @@ class aipassflask :
                for document in cursor:
                    a.append(document)
                valnc=sorted(a,key= lambda x:x['_id'])[-1]
-               featurepath=valnc.get('featurepath')
+               directory=valnc.get('featurepath')
                do=glob(directory)
                childdirectory=[x.split('\\')[-1] for x in do]
                file=[]
@@ -226,7 +189,7 @@ class aipassflask :
                     a.append(document)
                 #val=session['myvar']
                 vald=sorted(a,key= lambda x:x['_id'])[-1]
-                path=vald.get('featurepath')
+                path=vald.get('feature_Store_Path')
                 db = client['test']
                 a=[]
                 cursor = db.connectionscollection.find({})
@@ -244,31 +207,41 @@ class aipassflask :
                collect=db['dmpfeaturescollection']
                val_port=request.json
                page_sanitized=json.loads(json_util.dumps(val_port))
-               collect.insert_one(val_port)
-               return (page_sanitized)
-        @app.route('/dmpmodels',methods = ['POST','GET'])
-        @cross_origin()
-        def dmpmodels():
                client = pymongo.MongoClient("mongodb+srv://aditya:lokam001@cluster0-dikue.mongodb.net/test?retryWrites=true&w=majority")
                db = client['test']
-               collect=db['dmpfeaturescollection']
-               val_port=request.json
-               models=dmp.main(val_port)
-               collect=db['initialmodelcollection']
-               collect.insert_one({'models':models})
-               return ({'models':models})
+               a=[]
+               cursor = db.datasourcecollection.find({})
+               for document in cursor:
+                    a.append(document)
+               #val=session['myvar']
+               vald=sorted(a,key= lambda x:x['_id'])[-1]
+               path=vald.get('feature_Store_Path')
+               folder=vald.get('data_Store_Folder')
+               file=vald.get('data_Store_Filename')
+               db = client['test']
+               a=[]
+               cursor = db.connectionscollection.find({})
+               for document in cursor:
+                    a.append(document)
+               #val=session['myvar']
+               valc=sorted(a,key= lambda x:x['_id'])[-1]
+               df=featurenames.dataconn(valc.get('host'),valc.get('port'),valc.get('user'),path,folder,file)[0]
+               dmp1.api1(df,val_port)
+               collect.insert_one(val_port)
+               return (page_sanitized)
         @app.route('/dmpselectmodels',methods = ['POST','GET'])
         @cross_origin()
         def dmpselectmodels():
                client = pymongo.MongoClient("mongodb+srv://aditya:lokam001@cluster0-dikue.mongodb.net/test?retryWrites=true&w=majority")
                db = client['test']
                cursor = db.initialmodelcollection.find({})
+               a=[]
                for document in cursor:
                     a.append(document)
                 #val=session['myvar']
                valc=sorted(a,key= lambda x:x['_id'])[-1]
                selected=valc.get('models')
-               top3=dmp.main2(selected)
+               top3=dmp1.api22(selected)
                return ({'top3':top3})
 if __name__ == '__main__':
         app.run()
