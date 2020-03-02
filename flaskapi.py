@@ -192,9 +192,9 @@ class aipassflask :
             return (df)
             #self, column_list, host, webhdfs_default_port, user_ubuntu, datastore_path, datastore_foldername, datastore_filename, featurestore_path, featurestore_foldername, featurestore_filename
 #[{"Feature_Engeneering_option":"Bucketing","Features":[{"name":"acds"},{"name":"asd"}]},{"Feature_Engeneering_option":"Handle missing data","Features":[{"name":"dsfsc"},{"name":"asd"}]},{"Feature_Engeneering_option":"Drop duplicate data","Features":[{"name":"asd"}]}]           
-            @app.route('/dmpfolders',methods = ['POST','GET'])
-            @cross_origin()
-            def dmpfolders():
+        @app.route('/dmpfolders',methods = ['POST','GET'])
+        @cross_origin()
+        def dmpfolders():
                client = pymongo.MongoClient("mongodb+srv://aditya:lokam001@cluster0-dikue.mongodb.net/test?retryWrites=true&w=majority")
                db = client['test']
                a=[]
@@ -212,9 +212,9 @@ class aipassflask :
                    do=glob(do)
                    di[str(x)]=[x.split('\\')[-1] for x in do]
                return (di)
-           @app.route("/dmpreaddata",methods=['POST'])
-           @cross_origin()
-           def dmpreaddata():
+        @app.route("/dmpreaddata",methods=['POST'])
+        @cross_origin()
+        def dmpreaddata():
                 input1=json.loads(request.data)
                 folder=input1.get('folder')
                 file=input1.get('file')  
@@ -235,4 +235,44 @@ class aipassflask :
                 #val=session['myvar']
                 valc=sorted(a,key= lambda x:x['_id'])[-1]
                 cols=featurenames.dataconn(valc.get('host'),valc.get('port'),valc.get('user'),path,folder,file)[1].tolist()   
-                return jsonify(col)
+                return({'cols':cols})
+        @app.route('/dmpfeatures',methods = ['POST','GET'])
+        @cross_origin()
+        def dmpfeatures():
+               client = pymongo.MongoClient("mongodb+srv://aditya:lokam001@cluster0-dikue.mongodb.net/test?retryWrites=true&w=majority")
+               db = client['test']
+               collect=db['dmpfeaturescollection']
+               val_port=request.json
+               page_sanitized=json.loads(json_util.dumps(val_port))
+               collect.insert_one(val_port)
+               return (page_sanitized)
+        @app.route('/dmpmodels',methods = ['POST','GET'])
+        @cross_origin()
+        def dmpmodels():
+               client = pymongo.MongoClient("mongodb+srv://aditya:lokam001@cluster0-dikue.mongodb.net/test?retryWrites=true&w=majority")
+               db = client['test']
+               collect=db['dmpfeaturescollection']
+               val_port=request.json
+               models=dmp.main(val_port)
+               collect=db['initialmodelcollection']
+               collect.insert_one({'models':models})
+               return ({'models':models})
+        @app.route('/dmpselectmodels',methods = ['POST','GET'])
+        @cross_origin()
+        def dmpselectmodels():
+               client = pymongo.MongoClient("mongodb+srv://aditya:lokam001@cluster0-dikue.mongodb.net/test?retryWrites=true&w=majority")
+               db = client['test']
+               cursor = db.initialmodelcollection.find({})
+               for document in cursor:
+                    a.append(document)
+                #val=session['myvar']
+               valc=sorted(a,key= lambda x:x['_id'])[-1]
+               selected=valc.get('models')
+               top3=dmp.main2(selected)
+               return ({'top3':top3})
+if __name__ == '__main__':
+        app.run()
+
+
+
+
