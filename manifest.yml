@@ -4,4 +4,4 @@ applications:
     memory: 128M
     instances: 1
     env:
-      FLASK_APP: flaskapi.py
+      FLASK_APP: app.py
